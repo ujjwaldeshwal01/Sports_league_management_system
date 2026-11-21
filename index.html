@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LPU Sports League Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+        <div class="brand">
+            <div class="brand-icon">🏆</div>
+            <h1>LPU LeagueHub</h1>
+            <p>Lovely Professional University Sports League</p>
+        </div>
+
+        <div class="tabs">
+            <button id="loginTab" class="active" onclick="showAuth('login')">Login</button>
+            <button id="registerTab" onclick="showAuth('register')">Register</button>
+        </div>
+
+        <form id="loginForm">
+            <div class="field">
+                <label for="loginEmail">Email</label>
+                <input id="loginEmail" type="email" required>
+            </div>
+            <div class="field">
+                <label for="loginPassword">Password</label>
+                <input id="loginPassword" type="password" required>
+            </div>
+            <button class="button primary full">Login</button>
+        </form>
+
+        <form id="registerForm" class="hidden">
+            <div class="field">
+                <label for="registerName">Full name</label>
+                <input id="registerName" required maxlength="60">
+            </div>
+            <div class="field">
+                <label for="registerEmail">Email</label>
+                <input id="registerEmail" type="email" required maxlength="100">
+            </div>
+            <div class="field">
+                <label for="registerPassword">Password (6+ characters)</label>
+                <input id="registerPassword" type="password" required minlength="6">
+            </div>
+            <div class="field">
+                <label for="registerRole">Account type</label>
+                <select id="registerRole">
+                    <option>Student</option>
+                    <option>Organizer</option>
+                </select>
+            </div>
+            <button class="button primary full">Create account</button>
+        </form>
+
+        <div class="demo">
+            <b>Demo accounts</b><br>
+            Admin: admin@lpu.in / admin123<br>
+            Organizer: organizer@lpu.in / org123<br>
+            Student: student@lpu.in / student123
+        </div>
+    </div>
+</section>
+
+<div id="app" class="app hidden">
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="https://www.lpu.in/images/logo/LPU-logo-light.svg" alt="Lovely Professional University logo">
+            <strong>
+                LPU SPORTS<br>LEAGUE
+                <small>Lovely Professional University</small>
+            </strong>
+        </div>
+
+        <div class="nav-label">Management</div>
+        <nav>
+            <button class="nav-button active" data-page="dashboard" onclick="goTo('dashboard')">▦ Dashboard</button>
+            <button class="nav-button" data-page="calendar" onclick="goTo('calendar')">📅 Availability Calendar</button>
+            <button class="nav-button" data-page="games" onclick="goTo('games')">🏅 Variety of Games</button>
+            <button class="nav-button" data-page="matches" onclick="goTo('matches')">⚽ Matches</button>
+            <button class="nav-button" data-page="standings" onclick="goTo('standings')">🏆 Team Standings</button>
+            <button class="nav-button" data-page="players" onclick="goTo('players')">👤 Player Profiles</button>
+            <button class="nav-button" data-page="teams" onclick="goTo('teams')">🛡 Team Registration</button>
+            <button class="nav-button" data-page="bookings" onclick="goTo('bookings')">🏟 Venue Bookings</button>
+            <button class="nav-button" data-page="notifications" onclick="goTo('notifications')">🔔 Notifications</button>
+            <button class="nav-button" data-page="reports" onclick="goTo('reports')">📊 Reports</button>
+            <button id="profileNav" class="nav-button hidden" data-page="profile" onclick="goTo('profile')">⚙ Admin Profile</button>
+        </nav>
+
+        <div class="side-bottom">
+            <button class="nav-button" onclick="toggleContrast()">◐ Contrast mode</button>
+            <button class="nav-button" onclick="toggleTextSize()">A+ Text size</button>
+            <button class="nav-button" onclick="logout()">↪ Log out</button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <h2>LPU Sports League Management</h2>
+            <div class="user-info">
+                <div id="avatar" class="avatar">U</div>
+                <div>
+                    <b id="userName"></b><br>
+                    <span id="userRole" class="muted"></span>
+                </div>
+            </div>
+        </header>
+
+        <div class="content">
+            <section id="page-dashboard" class="page">
+                <div class="heading">
+                    <div>
+                        <h1>LPU Sports Dashboard</h1>
+                        <p>Matches, bookings and sports activity at Lovely Professional University.</p>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">Sports</div>
+                        <div id="statSports" class="stat-number"></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Teams</div>
+                        <div id="statTeams" class="stat-number"></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Live matches</div>
+                        <div id="statLive" class="stat-number"></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Pending requests</div>
+                        <div id="statPending" class="stat-number"></div>
+                    </div>
+                </div>
+                <div class="two-columns">
+                    <div class="panel">
+                        <h2>🔴 Live scores</h2>
+                        <div id="dashboardLive"></div>
+                    </div>
+                    <div class="panel">
+                        <h2>Upcoming matches</h2>
+                        <div id="dashboardUpcoming"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2>Recent notifications</h2>
+                    <div id="dashboardNotifications"></div>
+                </div>
+            </section>
+
+            <section id="page-calendar" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Facility Availability Calendar</h1>
+                        <p>Select a date to view venue bookings and open slots.</p>
+                    </div>
+                    <button class="button primary" onclick="goTo('facilities')">Browse venues &amp; book</button>
+                </div>
+                <div class="panel">
+                    <div class="toolbar">
+                        <select id="calendarVenue" onchange="renderCalendar()">
+                            <option value="">All venues</option>
+                        </select>
+                        <select id="calendarMonth" onchange="renderCalendar()"></select>
+                    </div>
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                </div>
+                <div class="panel">
+                    <h2 id="selectedDateTitle">Selected date</h2>
+                    <div id="dateAvailability"></div>
+                </div>
+            </section>
+
+            <section id="page-games" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Variety of Games</h1>
+                        <p>Explore more than 20 sports available for LPU activities.</p>
+                    </div>
+                </div>
+                <div class="toolbar">
+                    <input id="gameSearch" placeholder="Search games..." oninput="renderGames()">
+                    <select id="gameCategory" onchange="renderGames()">
+                        <option value="">All categories</option>
+                        <option>Team</option>
+                        <option>Racquet</option>
+                        <option>Individual</option>
+                        <option>Indoor</option>
+                    </select>
+                </div>
+                <div id="gameList" class="cards"></div>
+            </section>
+
+            <section id="page-facilities" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Playgrounds &amp; Stadiums</h1>
+                        <p>Choose a venue, sport, date and preferred time slot.</p>
+                    </div>
+                </div>
+                <div class="toolbar">
+                    <input id="facilitySearch" placeholder="Search venues..." oninput="renderFacilities()">
+                    <select id="facilityTypeFilter" onchange="renderFacilities()">
+                        <option value="">All venue types</option>
+                        <option>Playground</option>
+                        <option>Stadium</option>
+                        <option>Indoor Court</option>
+                    </select>
+                </div>
+                <div id="facilityList" class="cards"></div>
+            </section>
+
+            <section id="page-matches" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Matches &amp; Scores</h1>
+                        <p>Browse fixtures, live scores, details and results.</p>
+                    </div>
+                    <button class="button primary manager" onclick="openMatchForm()">+ Schedule match</button>
+                </div>
+                <div class="toolbar">
+                    <input id="matchSearch" placeholder="Search matches..." oninput="renderMatches()">
+                    <select id="matchFilter" onchange="renderMatches()">
+                        <option value="">All statuses</option>
+                        <option>Upcoming</option>
+                        <option>Ongoing</option>
+                        <option>Completed</option>
+                        <option>Cancelled</option>
+                    </select>
+                </div>
+                <div class="panel">
+                    <h2>🔴 Ongoing matches</h2>
+                    <div id="liveMatches"></div>
+                </div>
+                <div class="panel">
+                    <h2>Upcoming matches</h2>
+                    <div id="upcomingMatches"></div>
+                </div>
+                <div class="panel">
+                    <h2>All fixtures</h2>
+                    <div id="matchList" class="cards"></div>
+                </div>
+            </section>
+
+            <section id="page-standings" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Team Standings</h1>
+                        <p>Points are calculated from completed matches: win = 3, draw = 1.</p>
+                    </div>
+                </div>
+                <div class="toolbar">
+                    <select id="standingSport" onchange="renderStandings()"></select>
+                </div>
+                <div class="panel table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team</th>
+                                <th>Played</th>
+                                <th>Wins</th>
+                                <th>Draws</th>
+                                <th>Losses</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standingList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="page-players" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Player Profiles &amp; Stats</h1>
+                        <p>View player participation and sport statistics.</p>
+                    </div>
+                    <button class="button primary manager" onclick="addPlayer()">+ Add player</button>
+                </div>
+                <div class="toolbar">
+                    <input id="playerSearch" placeholder="Search players..." oninput="renderPlayers()">
+                    <select id="playerSportFilter" onchange="renderPlayers()">
+                        <option value="">All sports</option>
+                    </select>
+                </div>
+                <div id="playerList" class="cards"></div>
+            </section>
+
+            <section id="page-teams" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Team Registration</h1>
+                        <p>Register a team to include it in the league and match scheduling.</p>
+                    </div>
+                </div>
+                <div class="panel" style="max-width:700px">
+                    <h2>Register a new team</h2>
+                    <form id="teamForm">
+                        <div class="field">
+                            <label for="teamName">Team name</label>
+                            <input id="teamName" required maxlength="60">
+                        </div>
+                        <div class="field">
+                            <label for="teamSport">Sport</label>
+                            <select id="teamSport" required>
+                                <option value="">Choose a sport</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="teamDivision">Division</label>
+                            <select id="teamDivision" required>
+                                <option value="">Choose a division</option>
+                                <option>Men</option>
+                                <option>Women</option>
+                                <option>Mixed</option>
+                                <option>Open</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="teamCoach">Coach or team contact</label>
+                            <input id="teamCoach" maxlength="60">
+                        </div>
+                        <button class="button primary">Register team</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Registered teams</h2>
+                    <div id="teamList" class="cards"></div>
+                </div>
+            </section>
+
+            <section id="page-facility-list" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Playgrounds &amp; Stadiums</h1>
+                        <p>Choose a venue and submit your preferred booking time.</p>
+                    </div>
+                </div>
+                <div class="toolbar">
+                    <input id="venueSearch" placeholder="Search venues..." oninput="renderVenues()">
+                    <select id="venueTypeFilter" onchange="renderVenues()">
+                        <option value="">All types</option>
+                        <option>Playground</option>
+                        <option>Stadium</option>
+                        <option>Indoor Court</option>
+                    </select>
+                </div>
+                <div id="venueList" class="cards"></div>
+            </section>
+
+            <section id="page-bookings" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Venue Bookings</h1>
+                        <p>Track booking, cancellation and rescheduling requests.</p>
+                    </div>
+                    <button class="button primary" onclick="goTo('calendar')">View availability</button>
+                </div>
+                <div class="toolbar">
+                    <input id="bookingSearch" placeholder="Search bookings..." oninput="renderBookings()">
+                    <select id="bookingFilter" onchange="renderBookings()">
+                        <option value="">All statuses</option>
+                        <option>Pending</option>
+                        <option>Approved</option>
+                        <option>Rejected</option>
+                        <option>Change Requested</option>
+                        <option>Cancellation Requested</option>
+                        <option>Cancelled</option>
+                    </select>
+                </div>
+                <div class="panel table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Sport</th>
+                                <th>Venue</th>
+                                <th>Date</th>
+                                <th>Slot</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="page-notifications" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Notifications</h1>
+                        <p>Booking, match and score updates.</p>
+                    </div>
+                    <button class="button secondary" onclick="clearNotifications()">Clear notifications</button>
+                </div>
+                <div class="panel">
+                    <div id="notificationList"></div>
+                </div>
+            </section>
+
+            <section id="page-reports" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Admin Reports</h1>
+                        <p>Booking demand, results, standings and registration totals.</p>
+                    </div>
+                    <button class="button secondary" onclick="window.print()">Print report</button>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">Sports</div>
+                        <div id="reportSports" class="stat-number"></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Teams</div>
+                        <div id="reportTeams" class="stat-number"></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Completed matches</div>
+                        <div id="reportMatches" class="stat-number"></div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Registrations</div>
+                        <div id="reportBookings" class="stat-number"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2>Bookings by venue</h2>
+                    <div id="venueReport"></div>
+                </div>
+                <div class="panel">
+                    <h2>Results by sport</h2>
+                    <div id="sportReport"></div>
+                </div>
+                <div class="panel">
+                    <h2>Current standings</h2>
+                    <div id="reportStandings"></div>
+                </div>
+            </section>
+
+            <section id="page-profile" class="page hidden">
+                <div class="heading">
+                    <div>
+                        <h1>Admin Profile</h1>
+                        <p>Update administrator account information.</p>
+                    </div>
+                </div>
+                <div class="panel" style="max-width:600px">
+                    <form id="profileForm">
+                        <div class="field">
+                            <label for="adminName">Name</label>
+                            <input id="adminName" required>
+                        </div>
+                        <div class="field">
+                            <label for="adminEmail">Email</label>
+                            <input id="adminEmail" type="email" required>
+                        </div>
+                        <div class="field">
+                            <label for="oldPassword">Current password</label>
+                            <input id="oldPassword" type="password" required>
+                        </div>
+                        <div class="field">
+                            <label for="newPassword">New password (optional)</label>
+                            <input id="newPassword" type="password" minlength="6">
+                        </div>
+                        <div class="field">
+                            <label for="confirmPassword">Confirm new password</label>
+                            <input id="confirmPassword" type="password">
+                        </div>
+                        <button class="button primary">Save profile</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <footer class="footer">Lovely Professional University · Sports League Management System</footer>
+    </main>
+</div>
+
+<div id="modalBackdrop" class="backdrop hidden">
+    <div class="modal">
+        <div class="modal-head">
+            <div>
+                <h2 id="modalTitle">Form</h2>
+                <p id="modalDescription" class="muted"></p>
+            </div>
+            <button class="button secondary" onclick="closeModal()">Close</button>
+        </div>
+        <form id="modalForm"></form>
+    </div>
+</div>
+
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
